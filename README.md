@@ -1,1 +1,1 @@
-# Día 17 - Docker Build Básico con GitHub Actions
+# Día 18 - Self-hosted Runner Básico con GitHub Actions
