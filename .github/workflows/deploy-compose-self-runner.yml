@@ -24,5 +24,7 @@ jobs:
         docker compose -f docker-compose.yml up -d
         sleep 10
         curl -I http://localhost
+        curl -I http://localhost:3000
+        curl -I http://localhost:3001
 
   

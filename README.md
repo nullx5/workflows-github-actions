@@ -133,19 +133,12 @@ jobs:
       run: docker compose -f docker-compose.yml build
 
     - name: Levantar servicios
-      run: docker compose -f docker-compose.yml up -d
-
-    - name: Verificar app vote
-      run: curl -f http://localhost
-
-    - name: Verificar cabeceras vote
-      run: curl -I http://localhost
-    
-    - name: Verificar cabeceras result
-      run: curl -I http://localhost:3000
-
-    - name: Verificar cabeceras worker
-      run: curl -I http://localhost:3001
+      run: | 
+        docker compose -f docker-compose.yml up -d
+        sleep 10
+        curl -I http://localhost
+        curl -I http://localhost:3000
+        curl -I http://localhost:3001
 
 ```
 
