@@ -108,14 +108,14 @@ volumes:
 
 ## 🚀 Paso 3: Workflow de Deployment
 
-`.github/workflows/deploy-compose.yml`
+`.github/workflows/deploy-compose-self-runner.yml`
 
 ```yaml
-name: Deploy con Docker Compose
+name: Deploy Docker Compose Self-Runner
 
 on:
   push:
-    branches: [main, develop]
+    branches: [Dia-19-Deploy-Docker-Compose-Self-Runner]
   workflow_dispatch:
 
 jobs:
@@ -135,8 +135,18 @@ jobs:
     - name: Levantar servicios
       run: docker compose -f docker-compose.yml up -d
 
-    - name: Verificar app
-      run: curl -f http://localhost:3000/health
+    - name: Verificar app vote
+      run: curl -f http://localhost
+
+    - name: Verificar cabeceras vote
+      run: curl -I http://localhost
+    
+    - name: Verificar cabeceras result
+      run: curl -I http://localhost:3000
+
+    - name: Verificar cabeceras worker
+      run: curl -I http://localhost:3001
+
 ```
 
 ---
