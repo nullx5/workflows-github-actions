@@ -37,20 +37,28 @@ Imaginá una app con:
 ## 📦 Paso 1: Estructura de proyecto
 
 ```
+ .
+├──  docker-compose.yml
+├──  README.md
+├──  result
+│  ├──  Dockerfile
+│  ├──  main.js
+│  ├──  package.json
+│  ├──  tests
+│  └──  views
+├──  vote
+│  ├──  app.py
+│  ├──  Dockerfile
+│  ├──  requirements.txt
+│  ├──  templates
+│  └──  tests
+└──  worker
+   ├──  Dockerfile
+   ├──  main.js
+   ├──  package.json
+   └──  tests
 
-mi-app/
-├── app/
-│   ├── Dockerfile
-│   ├── index.js ó app.py
-│   └── package.json ó requirements.txt
-├── nginx/
-│   └── nginx.conf
-├── docker-compose.yml
-├── docker-compose.staging.yml
-├── docker-compose.prod.yml
-└── .env.example
-
-````
+```
 
 ---
 
@@ -59,49 +67,71 @@ mi-app/
 `docker-compose.yml`
 
 ```yaml
-version: '3.8'
-
 services:
-  app:
-    build: ./app
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-      - DB_HOST=postgres
-      - REDIS_HOST=redis
-    depends_on:
-      - postgres
-      - redis
-    volumes:
-      - ./app:/app
+    vote:
+        container_name: vote
+        build: ./vote
+        ports:
+            - "80:80"
+        environment:
+            - REDIS_HOST=${REDIS_HOST}
+            - DATABASE_HOST=${DATABASE_HOST}
+            - DATABASE_USER=${DATABASE_USER}
+            - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+            - DATABASE_NAME=${DATABASE_NAME}
+        depends_on:
+            - redis
 
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      - POSTGRES_DB=miapp
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password123
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    result:
+        container_name: result
+        build: ./result
+        ports:
+            - "3000:3000"
+        environment:
+            - APP_PORT=3000
+            - DATABASE_HOST=${DATABASE_HOST}
+            - DATABASE_USER=${DATABASE_USER}
+            - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+            - DATABASE_NAME=${DATABASE_NAME}
+        depends_on:
+            - redis
+            - database
 
-  redis:
-    image: redis:7-alpine
-    volumes:
-      - redis_data:/data
+    worker:
+        container_name: worker
+        build: ./worker
+        ports:
+           - "3001:3001"
+        environment:
+            - REDIS_HOST=${REDIS_HOST}
+            - DATABASE_HOST=${DATABASE_HOST}
+            - DATABASE_USER=${DATABASE_USER}
+            - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+            - DATABASE_NAME=${DATABASE_NAME}
+        depends_on:
+            - redis
+            - database
 
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - app
+    redis:
+        container_name: redis
+        image: "redis:alpine"
+        ports:
+            - "6379:6379"
+
+    database:
+        container_name: database
+        image: "postgres:15-alpine"
+        environment:
+            POSTGRES_USER: ${DATABASE_USER}
+            POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+            POSTGRES_DB: ${DATABASE_NAME}
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
-  redis_data:
+    pgdata:
 ````
 
 ---
