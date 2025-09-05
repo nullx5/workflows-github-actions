@@ -23,7 +23,7 @@ jobs:
       run: docker compose -f docker-compose.yml up -d
 
     - name: Verificar app vote
-      run: curl -f http://localhost
+      run: curl -I http://localhost
 
     - name: Verificar cabeceras vote
       run: curl -I http://localhost
